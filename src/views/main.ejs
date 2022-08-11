@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Bootstrap CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+        crossorigin="anonymous"></script>
+    <!-- jQuery CDN-->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+        integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <!-- DataTabled CDN -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.12.0/css/jquery.dataTables.css">
+    <script type="text/javascript" charset="utf8"
+        src="https://cdn.datatables.net/1.12.0/js/jquery.dataTables.js"></script>
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="styles/main.css">
+    <script src="scripts/main.js"></script>
+    <title>Bug Tracker</title>
+</head>
+
+<body>
+    <div class="container">
+        <center>
+            <h1>Bug Tracker</h1>
+            <button type="button" class="btn btn-success w-50 sfs-4" data-bs-toggle="modal"
+                data-bs-target="#opModal">Register new bug</button>
+        </center>
+    </div>
+    <hr>
+    <div class="container">
+        <table class="table table-responsive align-middle fs-5 cell-border" id="bugsTable">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Description</th>
+                    <th>Date</th>
+                    <th>Assignee</th>
+                    <th>Time Remaining</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% result.data.forEach((x)=> {
+                    var sRemaining = (x.time / 1000) + (86400 * 3) - (Date.now() / 1000);
+                    if(sRemaining > 0) {
+                    var dRemaining = Math.floor(sRemaining / 86400);
+                    var hRemaining = Math.floor(((sRemaining / 86400) - dRemaining) * 24);
+                    } else {
+                    var dRemaining = 0;
+                    var hRemaining = 0;
+                    }
+                    if(dRemaining == 0) {
+                    var rowClass = "bg-warning";
+                    } else {
+                    var rowClass = "";
+                    }
+                    %>
+                    <tr class="<%=rowClass%>">
+                        <td>
+                            <%=x.title%>
+                        </td>
+                        <td>
+                            <%=x.description%>
+                        </td>
+                        <td>
+                            <%=(new Date(x.date)).toDateString()%>
+                        </td>
+                        <td>
+                            <%=x.assignee%>
+                        </td>
+                        <td>
+                            <%=dRemaining%> days, <%=hRemaining%> hours
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-secondary resolve-bug" data-id="<%=x._id%>">Mark as
+                                resolved</button>
+                        </td>
+                    </tr>
+                <% }); %>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th>Title</th>
+                    <th>Description</th>
+                    <th>Date</th>
+                    <th>Assignee</th>
+                    <th>Time Remaining</th>
+                    <th>Actions</th>
+                </tr>
+            </tfoot>
+        </table>
+
+    </div>
+    <!-- Modal -->
+    <div class="modal fade" id="opModal" tabindex="-1" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Modal title</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="/api/bugs" method="post" id="modalForm">
+                        <div class="mb-3">
+                            <label for="title" class="form-label">Title</label>
+                            <input type="text" class="form-control" id="title" placeholder="Enter title" name="title">
+                        </div>
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <input type="text" class="form-control" id="description" placeholder="Enter description"
+                                name="description">
+                        </div>
+                        <div class="mb-3">
+                            <label for="assignee" class="form-label">Assignee</label>
+                            <input type="text" class="form-control" id="assignee" placeholder="Enter assignee"
+                                name="assignee">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="modalSubmit">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Toast -->
+    <div class="toast align-items-center text-white bg-success border-0 position-fixed fs-5" role="alert"
+        aria-live="assertive" aria-atomic="true" id="resultToast">
+        <div class="d-flex">
+            <div class="toast-body">
+                Hello, world! This is a toast message.
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                aria-label="Close"></button>
+        </div>
+    </div>
+
+</body>
+
+</html>
